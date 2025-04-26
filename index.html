@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Commandes - KS TRANSPORT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="ks-transport.png">
+</head>
+<body>
+  <div id="login-screen" style="display: flex; justify-content: center; align-items: flex-start; height: 90vh; padding-top: 5vh; background: #f0f9ff;">
+    <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: var(--shadow-lg); width: 50%; max-width: 500px; text-align: center;">
+      <img src="ks-transport.png" alt="KS Transport Logo" style="max-width: 180px; margin-bottom: 25px;">
+      <h2 style="text-align: center; color: var(--primary-dark); margin-bottom: 25px; font-size: 1.5rem;">Connexion</h2>
+  
+      <div class="form-group">
+        <label for="login-username">Nom d'utilisateur</label>
+        <input type="text" id="login-username" class="form-control" placeholder="Entrez votre nom d'utilisateur" required style="width: 50%; margin: 0 auto;">
+      </div>
+      <div class="form-group">
+        <label for="login-password">Mot de passe</label>
+        <input type="password" id="login-password" class="form-control" placeholder="Entrez votre mot de passe" required style="width: 50%; margin: 0 auto;">
+      </div>
+      <button class="btn btn-primary" id="login-button" style="width: 28%; margin-top: 25px; padding: 12px; font-size: 1rem;">Se connecter</button>
+      <p id="login-error" style="color: var(--danger); text-align: center; margin-top: 15px; display: none;">Nom d'utilisateur ou mot de passe incorrect</p>
+    </div>
+  </div>
+  
+  <div id="main-container" class="container" style="display: none;">
+    <button class="btn btn-danger" id="logout-button" style="float: right; margin-bottom: 20px;">
+      <i class="fas fa-sign-out-alt"></i> Déconnexion
+    </button>
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px; 
+    border-bottom: 2px solid #fbbf24; padding-bottom: 15px; justify-content: center; 
+    text-align: center; animation: fadeIn 1s ease-out;">
+
+      <img src="ks-transport.png" alt="KS Transport Logo" 
+      class="header-logo" 
+      style="height: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+
+      <h1 class="main-title">
+      <i class="fas fa-clipboard-list"></i> Gestion des Commandes KS TRANSPORT
+      </h1>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-primary" id="add-commande">
+        <i class="fas fa-plus"></i> Nouvelle Commande
+      </button>
+
+      <!-- Décompteur -->
+      <div id="decompteur">
+        <div class="decompteur-item" id="sable-total-container">
+          <div>Sable:</div>
+          <span class="decompteur-value" id="sable-total"></span>
+          <span class="small-text">Voyages</span>
+        </div>
+        
+        <div class="decompteur-item" id="terre-total-container">
+          <div>Terre:</div>
+          <span class="decompteur-value" id="terre-total"></span>
+          <span class="small-text">Voyages</span>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-danger" id="clear-data" style="margin-left: 10px;">
+          <i class="fas fa-trash-alt"></i> Vider les commandes
+        </button>
+      </div>
+    </div>
+    
+    <div class="filters">
+      <div class="filter-group">
+        <label for="filter-status">Statut</label>
+        <select id="filter-status">
+          <option value="all">Tous les statuts</option>
+          <option value="pending">En attente</option>
+          <option value="approved">Validées</option>
+          <option value="completed">Terminées</option>
+          <option value="cancelled">Annulées</option>
+          <option value="refunded">Remboursées</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-payment">Paiement</label>
+        <select id="filter-payment">
+          <option value="all">Tous</option>
+          <option value="paid">Payé</option>
+          <option value="unpaid">Non payé</option>
+          <option value="refunded">Remboursé</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-delivery">Livraison</label>
+        <select id="filter-delivery">
+          <option value="all">Tous</option>
+          <option value="delivered">Livré</option>
+          <option value="pending">Non livré</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-date">Date</label>
+        <input type="date" id="filter-date">
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-date-range">Période</label>
+        <select id="filter-date-range">
+          <option value="all">Toutes les dates</option>
+          <option value="today">Aujourd'hui</option>
+          <option value="yesterday">Hier</option>
+          <option value="this-week">Cette semaine</option>
+          <option value="this-month">Ce mois</option>
+          <option value="last-month">Mois dernier</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-search">Recherche</label>
+        <input type="text" id="filter-search" placeholder="Nom client, n° de commande...">
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-localite">Localité</label>
+        <select id="filter-localite">
+          <option value="all">Toutes les localités</option>
+          <option value="N'DOUCI">N'DOUCI</option>
+          <option value="TIASSALE">TIASSALE</option>
+          <option value="BATERA">BATERA</option>
+          <option value="BINAO">BINAO</option>
+          <option value="BOTENDE">BOTENDE</option>
+          <option value="KM101">KM101</option>
+          <option value="KM103">KM103</option>
+          <option value="KM110">KM110</option>
+          <option value="BODO">BODO</option>
+          <option value="SIKENSI">SIKENSI</option>
+          <option value="KODIMANSO">KODIMANSO</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-designation">Désignation</label>
+        <input type="text" id="filter-designation" placeholder="Rechercher une désignation...">
+      </div>
+    </div>
+    
+    <table class="commandes-table">
+      <thead>
+        <tr>
+          <th>N°</th>
+          <th>Client</th>
+          <th>Date</th>
+          <th>Heure</th>
+          <th>Désignation</th>
+          <th>Montant</th>
+          <th>Réduction</th>
+          <th>Localité</th>
+          <th>Statut</th>
+          <th>Paiement</th>
+          <th>Livraison</th>
+          <th>Restants</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="commandes-list">
+        <!-- Les commandes seront ajoutées ici dynamiquement -->
+      </tbody>
+    </table>
+    
+    <div id="no-commandes" class="no-commandes" style="display: none;">
+      <i class="fas fa-inbox" style="font-size: 3rem; color: var(--gray-medium); margin-bottom: 15px;"></i>
+      <h3>Aucune commande trouvée</h3>
+      <p>Il n'y a aucune commande correspondant à vos critères de recherche.</p>
+    </div>
+  </div>
+  
+  <!-- Modal pour ajouter/modifier une commande -->
+  <div class="modal" id="commande-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="commande-modal-title">Nouvelle Commande</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="commande-client">Nom du Client *</label>
+          <input type="text" id="commande-client" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="commande-telephone">Téléphone *</label>
+          <input type="text" id="commande-telephone" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="commande-localite">Localité *</label>
+          <select id="commande-localite" required>
+            <option value="">Sélectionnez une localité</option>
+            <option value="N'DOUCI">N'DOUCI</option>
+            <option value="TIASSALE">TIASSALE</option>
+            <option value="BATERA">BATERA</option>
+            <option value="BINAO">BINAO</option>
+            <option value="BOTENDE">BOTENDE</option>
+            <option value="KM101">KM101</option>
+            <option value="KM103">KM103</option>
+            <option value="KM110">KM110</option>
+            <option value="BODO">BODO</option>
+            <option value="SIKENSI">SIKENSI</option>
+            <option value="KODIMANSO">KODIMANSO</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="commande-date">Date *</label>
+          <input type="date" id="commande-date" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="commande-heure">Heure *</label>
+          <input type="time" id="commande-heure" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="commande-paiement">Méthode de Paiement</label>
+          <select id="commande-paiement">
+            <option value="Orange Money">Orange Money</option>
+            <option value="MTN Money">MTN Money</option>
+            <option value="Moov Money">Moov Money</option>
+            <option value="Wave">Wave</option>
+            <option value="Espèce">Espèce</option>
+          </select>
+        </div>
+        
+        <div id="materiaux-list">
+          <!-- Les items seront ajoutés ici -->
+        </div>
+        
+        <button class="btn btn-primary" id="add-materiel">
+          <i class="fas fa-plus"></i> Désignation
+        </button>
+        
+        <div class="form-group" style="margin-top: 20px;">
+          <label for="commande-montant">Montant Total (FCFA) *</label>
+          <input type="number" id="commande-montant" required readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="commande-reduction">Réduction (FCFA)</label>
+          <input type="number" id="commande-reduction" value="0" min="0" placeholder="Entrez une réduction">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="cancel-commande">Annuler</button>
+        <button class="btn btn-success" id="save-commande">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour confirmer les actions -->
+  <div class="modal" id="action-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Confirmer l'action</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        Êtes-vous sûr de vouloir effectuer cette action ?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="cancel-action">Annuler</button>
+        <button class="btn btn-success" id="confirm-action">Confirmer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour modifier paiement/livraison -->
+  <div class="modal" id="status-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Modifier le statut</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="payment-status">Statut de paiement</label>
+          <select id="payment-status" class="form-control">
+            <option value="paid">Payé</option>
+            <option value="unpaid">Non payé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="delivery-status">Statut de livraison</label>
+          <select id="delivery-status" class="form-control">
+            <option value="delivered">Livré</option>
+            <option value="pending">Non livré</option>
+          </select>
+        </div>
+        <div id="delivery-items">
+          <!-- Les champs pour les quantités livrées seront ajoutés ici dynamiquement -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="cancel-status">Annuler</button>
+        <button class="btn btn-success" id="save-status">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour les remboursements -->
+  <div class="modal" id="refund-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Demande de remboursement</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="refund-commande-info"></div>
+        
+        <div class="form-group">
+          <label for="refund-amount">Montant à rembourser (FCFA)</label>
+          <input type="number" id="refund-amount" class="form-control" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label for="refund-method">Méthode de remboursement</label>
+          <select id="refund-method" class="form-control">
+            <option value="Orange Money">Orange Money</option>
+            <option value="MTN Money">MTN Money</option>
+            <option value="Wave">Wave</option>
+            <option value="Espèces">Espèces</option>
+            <option value="Virement bancaire">Virement bancaire</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="refund-reason">Raison du remboursement</label>
+          <select id="refund-reason" class="form-control">
+            <option value="Client non satisfait">Client non satisfait</option>
+            <option value="Retard de livraison">Retard de livraison</option>
+            <option value="Erreur de commande">Erreur de commande</option>
+            <option value="Annulation client">Annulation client</option>
+            <option value="autre">Autre raison</option>
+          </select>
+          <textarea id="refund-reason-details" class="form-control" placeholder="Détails supplémentaires..." style="display:none; margin-top: 10px;"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="refund-notes">Notes internes</label>
+          <textarea id="refund-notes" class="form-control" placeholder="Informations pour le service comptable..."></textarea>
+        </div>
+        
+        <div id="refund-history" class="refund-history" style="display:none;">
+          <h4>Historique des remboursements</h4>
+          <div id="refund-history-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="cancel-refund">Annuler</button>
+        <button class="btn btn-primary" id="print-refund-receipt">Afficher le reçu</button>
+        <button class="btn btn-success" id="confirm-refund">Confirmer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour vider les commandes (version sécurisée) -->
+  <div class="modal" id="clear-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirmation requise</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="security-alert">
+          <p><strong>⚠️ Action irréversible</strong></p>
+          <p>Cette opération supprimera définitivement toutes les commandes enregistrées.</p>
+        </div>
+        
+        <ul class="security-steps">
+          <li><i class="fas fa-shield-alt"></i> Une sauvegarde automatique sera créée</li>
+          <li><i class="fas fa-history"></i> Les données pourront être restaurées pendant 7 jours</li>
+        </ul>
+        
+        <div class="form-group">
+          <label for="confirm-delete">1. Tapez "SUPPRIMER" pour confirmer :</label>
+          <input type="text" id="confirm-delete" placeholder="SUPPRIMER" style="text-transform: uppercase;">
+        </div>
+        
+        <div class="form-group">
+          <label for="admin-password">2. Entrez le mot de passe administrateur :</label>
+          <input type="password" id="admin-password" placeholder="Mot de passe requis">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-clear">Annuler</button>
+        <button class="btn btn-danger" id="confirm-clear" disabled>Confirmer la suppression</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour remboursement avec justification -->
+  <div class="modal" id="refund-justification-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Remboursement</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="refund-justification-commande-info"></div>
+        
+        <div class="form-group">
+          <label for="refund-justification-amount">Montant à rembourser (FCFA)</label>
+          <input type="number" id="refund-justification-amount" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="refund-justification-method">Méthode de remboursement</label>
+          <select id="refund-justification-method" class="form-control">
+            <option value="Orange Money">Orange Money</option>
+            <option value="MTN Money">MTN Money</option>
+            <option value="Moov Money">Moov Money</option>
+            <option value="Wave">Wave</option>
+            <option value="Espèces">Espèces</option>
+            <option value="Virement bancaire">Virement bancaire</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="refund-justification-reason">Raison du remboursement</label>
+          <textarea id="refund-justification-reason" class="form-control" placeholder="Expliquez la raison du remboursement..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="cancel-refund-justification">Annuler</button>
+        <button class="btn btn-success" id="confirm-refund-justification">Confirmer</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
